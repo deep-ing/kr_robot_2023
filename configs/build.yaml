@@ -1,0 +1,17 @@
+
+device: 'cuda:0'
+exploration_fraction : 0.1
+gamma : 0.99
+target_network_frequency: 10000
+buffer_size : 1000000
+start_e : 1
+end_e : 0.01 
+train_frequency : 4
+batch_size : 32 
+n_atoms : 51
+v_min : -10
+v_max : 10
+teacher:
+  learning_rate: 2.5e-4
+
+
