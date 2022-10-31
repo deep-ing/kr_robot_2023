@@ -15,6 +15,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--config", type=str)
 parser.add_argument("--env-id", type=str)
 parser.add_argument("--seed", type=int)
+parser.add_argument("--teacher-encoder", type=str)
+parser.add_argument("--student-encoder", type=str)
 parser.add_argument("--total-timesteps", type=int)
 parser.add_argument("--learning-starts", type=int)
 
@@ -24,6 +26,8 @@ flags.env_id = args.env_id
 flags.seed = args.seed 
 flags.total_timesteps = args.total_timesteps
 flags.learning_starts = args.learning_starts
+flags.teacher_encoder = args.teacher_encoder 
+flags.student_encoder = args.student_encoder
 
 run_name = f"{flags.env_id}__{flags.seed}__{int(time.time())}"
 
@@ -65,8 +69,11 @@ rb = ReplayBuffer(
 start_time = time.time()
 
 # ------------------------------------------------------------------------
-teacher = Teacher(envs, flags).to(device)
-student = Student(envs, flags).to(device)
+from encoder import get_encoder 
+encoder_t = get_encoder(flags.teacher_encoder, envs, out_features=envs.single_action_space.n * flags.n_atoms)
+encoder_s = get_encoder(flags.student_encoder, envs, out_features=envs.single_action_space.n * flags.n_atoms)
+teacher = Teacher(envs, encoder_t, flags).to(device)
+student = Student(envs, encoder_s, flags).to(device)
 # ------------------------------------------------------------------------
 
 
@@ -112,10 +119,10 @@ for global_step in range(flags.total_timesteps):
     if global_step > flags.learning_starts and global_step % flags.train_frequency == 0:
         data = rb.sample(flags.batch_size)
         with torch.no_grad():
-            _, next_pmfs = teacher.target_network.get_action(data.next_observations)
-            next_atoms = data.rewards + flags.gamma * teacher.target_network.atoms * (1 - data.dones)
+            _, next_pmfs = teacher.target_q_network.get_action(data.next_observations)
+            next_atoms = data.rewards + flags.gamma * teacher.target_q_network.atoms * (1 - data.dones)
             # projection
-            delta_z = teacher.target_network.atoms[1] - teacher.target_network.atoms[0]
+            delta_z = teacher.target_q_network.atoms[1] - teacher.target_q_network.atoms[0]
             tz = next_atoms.clamp(flags.v_min, flags.v_max)
 
             b = (tz - flags.v_min) / delta_z
