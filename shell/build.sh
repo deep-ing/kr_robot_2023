@@ -1,5 +1,5 @@
 
-env='leaper'
+env='BreakoutNoFrameskip-v4'
 config='configs/build.yaml'
 seed=0
 total_timesteps=1000000

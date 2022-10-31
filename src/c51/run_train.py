@@ -1,7 +1,7 @@
 from models import Teacher, Student, linear_schedule
 import time
 import gym 
-from procgen import ProcgenEnv
+# from procgen import ProcgenEnv
 from torch.utils.tensorboard import SummaryWriter
 import random
 import numpy as np 
@@ -9,7 +9,7 @@ import torch
 import argparse
 from omegaconf import OmegaConf
 from stable_baselines3.common.buffers import ReplayBuffer
-
+from make_env import make_env
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--config", type=str)
@@ -44,20 +44,20 @@ torch.manual_seed(flags.seed)
 torch.backends.cudnn.deterministic = True
 device = torch.device(flags.device)
 
-# env setup
-envs = ProcgenEnv(num_envs=1, env_name=flags.env_id, num_levels=0, start_level=0, distribution_mode="easy")
-envs = gym.wrappers.TransformObservation(envs, lambda obs: obs["rgb"])
-envs.single_action_space = envs.action_space
-envs.single_observation_space = envs.observation_space["rgb"]
-envs.is_vector_env = True
+# # env setup
+# envs = ProcgenEnv(num_envs=1, env_name=flags.env_id, num_levels=0, start_level=0, distribution_mode="easy")
+# envs = gym.wrappers.TransformObservation(envs, lambda obs: obs["rgb"])
+# envs.single_action_space = envs.action_space
+# envs.single_observation_space = envs.observation_space["rgb"]
+# envs.is_vector_env = True
 
-envs = gym.wrappers.RecordEpisodeStatistics(envs)
-envs = gym.wrappers.NormalizeReward(envs, gamma=flags.gamma)
-envs = gym.wrappers.TransformReward(envs, lambda reward: np.clip(reward, -10, 10))
-assert isinstance(envs.single_action_space, gym.spaces.Discrete), "only discrete action space is supported"
-assert isinstance(envs.single_action_space, gym.spaces.Discrete), "only discrete action space is supported"
+# envs = gym.wrappers.RecordEpisodeStatistics(envs)
+# envs = gym.wrappers.NormalizeReward(envs, gamma=flags.gamma)
+# envs = gym.wrappers.TransformReward(envs, lambda reward: np.clip(reward, -10, 10))
+# assert isinstance(envs.single_action_space, gym.spaces.Discrete), "only discrete action space is supported"
+# assert isinstance(envs.single_action_space, gym.spaces.Discrete), "only discrete action space is supported"
 
-
+envs = gym.vector.SyncVectorEnv([make_env(args.env_id, args.seed, 0, False, run_name)])
 rb = ReplayBuffer(
     flags.buffer_size,
     envs.single_observation_space,
@@ -80,7 +80,6 @@ student = Student(envs, encoder_s, flags).to(device)
 
 # TRY NOT TO MODIFY: start the game
 obs = envs.reset()
-
 for global_step in range(flags.total_timesteps):
     
     # ALGO LOGIC: put action logic here
@@ -93,7 +92,6 @@ for global_step in range(flags.total_timesteps):
 
     # TRY NOT TO MODIFY: execute the game and log data.
     next_obs, rewards, dones, infos = envs.step(actions)
-
     # TRY NOT TO MODIFY: record rewards for plotting purposes
     for info in infos:
         if "episode" in info.keys():
@@ -101,7 +99,7 @@ for global_step in range(flags.total_timesteps):
             writer.add_scalar("charts/episodic_return", info["episode"]["r"], global_step)
             writer.add_scalar("charts/episodic_length", info["episode"]["l"], global_step)
             writer.add_scalar("charts/epsilon", epsilon, global_step)
-            break
+            break 
 
     # TRY NOT TO MODIFY: save data to reply buffer; handle `terminal_observation`
     # real_next_obs = next_obs.copy()
