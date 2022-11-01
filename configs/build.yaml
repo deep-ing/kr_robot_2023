@@ -1,18 +1,31 @@
-
+# general config 
 device: 'cuda:0'
-exploration_fraction : 0.1
 gamma : 0.99
-target_network_frequency: 5000
-buffer_size : 100000
+buffer_size : 10000
+exploration_fraction : 0.1
 start_e : 1
 end_e : 0.01 
-train_frequency : 4
-batch_size : 32
-n_atoms : 51
-v_min : -10
-v_max : 10
-tau : 0.5
-teacher:
+
+
+train_teacher_frequency : 4
+agent:
+  target_network_frequency: 5000
+  tau : 0.5
+  batch_size : 32
   learning_rate: 2.5e-4
+  # when the teacher agent is c51 
+  v_min : -10
+  v_max : 10
+  n_atoms : 51
 
-
+# --- Distilled Student related config
+distiled:
+  a:
+    ab: 1
+    bc: 1
+  b: 
+    ab: 1
+    bc: 1
+  c: 
+    ab: 1
+    bc: 1

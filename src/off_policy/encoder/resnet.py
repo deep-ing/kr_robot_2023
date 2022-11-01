@@ -40,6 +40,7 @@ class ConvSequence(nn.Module):
 class ResNet(nn.Module):
     def __init__(self, env, out_features):
         super().__init__()
+        self.out_features = out_features
         self.env = env
         h, w, c = env.single_observation_space.shape
         shape = (c, h, w)

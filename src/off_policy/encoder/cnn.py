@@ -5,6 +5,7 @@ import torch.nn as nn
 class CNN(nn.Module):
     def __init__(self, env, out_features):
         super().__init__()
+        self.out_features = out_features
         self.env = env
         self.network = nn.Sequential(
             nn.Conv2d(4, 32, 8, stride=4),
