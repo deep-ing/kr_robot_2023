@@ -8,8 +8,8 @@ student_encoder='cnn'
 learning_starts=10000
 
 
-target_update_frequency=10000
-tau=0.1 # 0.1 0.05
+target_update_frequency=5000
+tau=0.5 # 0.1 0.05
 
 dict='{"tau" : '$tau', "target_update_frequency":'$target_update_frequency'}'
 

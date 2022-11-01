@@ -2,7 +2,7 @@
 env='BreakoutNoFrameskip-v4'
 config='configs/build.yaml'
 seed=0
-total_timesteps=1000000
+total_timesteps=10000000
 teacher_encoder='cnn'
 student_encoder='cnn'
 learning_starts=20000
