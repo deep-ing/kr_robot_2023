@@ -30,7 +30,7 @@ class DQN():
         loss = F.mse_loss(td_target, old_val)
 
         if global_step % 100 == 0:
-            writer.add_scalar("losses/td_loss", loss, global_step)
+            writer.add_scalar("losses/loss", loss, global_step)
             writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)
             print("SPS:", int(global_step / (time.time() - self.flags.start_time)))
             writer.add_scalar("charts/SPS", int(global_step / (time.time() - self.flags.start_time)), global_step)
