@@ -10,7 +10,7 @@ class DQN():
                  flags):
         
         self.flags = flags
-        self.af = flags.agent
+        self.af = flags.dqn
         self.q_network = DQN_QNetwork(q_network)
         self.optimizer = torch.optim.Adam(self.q_network.parameters(), lr=self.af.learning_rate, eps=0.01 / self.af.batch_size)
         self.target_q_network = DQN_QNetwork(q_t_network)

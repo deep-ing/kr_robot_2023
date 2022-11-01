@@ -60,7 +60,7 @@ flags.start_time = time.time()
 from encoder import get_encoder 
 
 teacher_out_features = {
-    'c51' : envs.single_action_space.n * flags.agent.n_atoms,
+    'c51' : envs.single_action_space.n * flags.c51.n_atoms,
     'dqn' : envs.single_action_space.n
 }[flags.teacher_agent]
 
@@ -77,7 +77,8 @@ for global_step in range(flags.total_timesteps):
     if random.random() < epsilon:
         actions = np.array([envs.single_action_space.sample() for _ in range(envs.num_envs)])
     else:
-        actions, _ = teacher.get_action(torch.Tensor(obs).to(device))
+        with torch.no_grad():
+            actions, _ = teacher.get_action(torch.Tensor(obs).to(device))
         actions = actions.cpu().numpy()
 
     # TRY NOT TO MODIFY: execute the game and log data.

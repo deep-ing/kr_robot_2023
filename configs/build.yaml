@@ -8,7 +8,8 @@ end_e : 0.01
 
 
 train_teacher_frequency : 4
-agent:
+
+c51:
   target_network_frequency: 5000
   tau : 0.5
   batch_size : 32
@@ -17,6 +18,11 @@ agent:
   v_min : -10
   v_max : 10
   n_atoms : 51
+dqn:
+  target_network_frequency: 1000
+  tau : 0.5
+  batch_size : 32
+  learning_rate: 1e-4
 
 # --- Distilled Student related config
 distiled:

@@ -9,7 +9,7 @@ class C51():
                  flags):
         
         self.flags = flags
-        self.af = flags.agent
+        self.af = flags.c51
         self.q_network = C51_Qnetwork(self.flags.action_dim, q_network, n_atoms=self.af.n_atoms, v_min=self.af.v_min, v_max=self.af.v_max)
         self.optimizer = torch.optim.Adam(self.q_network.parameters(), lr=self.af.learning_rate, eps=0.01 / self.af.batch_size)
         self.target_q_network = C51_Qnetwork(self.flags.action_dim, q_t_network, n_atoms=self.af.n_atoms, v_min=self.af.v_min, v_max=self.af.v_max)
