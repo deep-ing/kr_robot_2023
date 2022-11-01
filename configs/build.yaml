@@ -1,13 +1,14 @@
 # general config 
 device: 'cuda:0'
 gamma : 0.99
-buffer_size : 10000
+buffer_size : 100000
 exploration_fraction : 0.1
 start_e : 1
 end_e : 0.01 
 
-
-train_teacher_frequency : 4
+train_distil_frequency : 1000
+train_teacher_frequency : 500
+teacher_epochs : 100
 
 c51:
   target_network_frequency: 5000
@@ -25,13 +26,8 @@ dqn:
   learning_rate: 1e-4
 
 # --- Distilled Student related config
-distiled:
-  a:
-    ab: 1
-    bc: 1
-  b: 
-    ab: 1
-    bc: 1
-  c: 
-    ab: 1
-    bc: 1
+distil:
+  simple:
+    learning_rate: 1e-3
+    batch_size: 64
+    distil_epochs : 100

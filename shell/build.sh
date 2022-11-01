@@ -2,11 +2,12 @@
 env='BreakoutNoFrameskip-v4'
 config='configs/build.yaml'
 seed=0
-total_timesteps=1000000
+total_timesteps=5000000
 teacher_agent='dqn'
+distil_agent='simple'
 teacher_encoder='cnn'
-student_encoder='cnn'
-learning_starts=400
+distil_encoder='one_cnn'
+learning_starts=2000
 
 python src/off_policy/run_train.py \
     --env-id $env \
@@ -16,4 +17,5 @@ python src/off_policy/run_train.py \
     --config $config \
     --teacher-agent $teacher_agent \
     --teacher-encoder $teacher_encoder \
-    --student-encoder $student_encoder
+    --distil-encoder $distil_encoder \
+    --distil-agent $distil_agent 

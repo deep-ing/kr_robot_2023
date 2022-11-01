@@ -1,4 +1,6 @@
+from dis import dis
 from agents import get_agent
+from distilled import get_distilled
 from utils import linear_schedule
 import time
 import gym 
@@ -18,7 +20,8 @@ parser.add_argument("--env-id", type=str)
 parser.add_argument("--seed", type=int)
 parser.add_argument("--teacher-agent", type=str)
 parser.add_argument("--teacher-encoder", type=str)
-parser.add_argument("--student-encoder", type=str)
+parser.add_argument("--distil-agent", type=str)
+parser.add_argument("--distil-encoder", type=str)
 parser.add_argument("--total-timesteps", type=int)
 parser.add_argument("--learning-starts", type=int)
 parser.add_argument("--postfix", type=str, default="")
@@ -63,10 +66,13 @@ teacher_out_features = {
     'c51' : envs.single_action_space.n * flags.c51.n_atoms,
     'dqn' : envs.single_action_space.n
 }[flags.teacher_agent]
+distil_out_features = envs.single_action_space.n
 
 encoder_t = get_encoder(flags.teacher_encoder, envs, out_features=teacher_out_features)
 encoder_t_target = get_encoder(flags.teacher_encoder, envs, out_features=teacher_out_features)
+encoder_distil = get_encoder(flags.distil_encoder, envs, out_features=teacher_out_features)
 teacher = get_agent(flags.teacher_agent, encoder_t, encoder_t_target, flags).to(device)
+distil = get_distilled(flags.distil_agent ,encoder_distil, flags).to(device)
 # ------------------------------------------------------------------------
 
 # TRY NOT TO MODIFY: start the game
@@ -78,7 +84,7 @@ for global_step in range(flags.total_timesteps):
         actions = np.array([envs.single_action_space.sample() for _ in range(envs.num_envs)])
     else:
         with torch.no_grad():
-            actions, _ = teacher.get_action(torch.Tensor(obs).to(device))
+            actions, _ = distil.get_action(torch.Tensor(obs).to(device))
         actions = actions.cpu().numpy()
 
     # TRY NOT TO MODIFY: execute the game and log data.
@@ -96,6 +102,12 @@ for global_step in range(flags.total_timesteps):
     obs = next_obs
     if global_step > flags.learning_starts and global_step % flags.train_teacher_frequency == 0:
         teacher.train(rb, writer, global_step)
+    if global_step > flags.learning_starts and global_step % flags.train_distil_frequency == 0:
+        distil.train_distil(teacher, rb, global_step, writer)
+            # update the target network
+    if global_step % teacher.target_network_frequency == 0:
+        for param, target_param in zip(teacher.q_network.parameters(), teacher.target_q_network.parameters()):
+            target_param.data.copy_(teacher.af.tau * param.data + (1 - teacher.af.tau) * target_param.data)
         
 envs.close()
 writer.close()
