@@ -19,6 +19,7 @@ parser.add_argument("--teacher-encoder", type=str)
 parser.add_argument("--student-encoder", type=str)
 parser.add_argument("--total-timesteps", type=int)
 parser.add_argument("--learning-starts", type=int)
+parser.add_argument("--postfix", type=str, default="")
 
 args = parser.parse_args()
 flags = OmegaConf.load(args.config)
@@ -28,8 +29,10 @@ flags.total_timesteps = args.total_timesteps
 flags.learning_starts = args.learning_starts
 flags.teacher_encoder = args.teacher_encoder 
 flags.student_encoder = args.student_encoder
+flags.postfix = args.postfix
 
-run_name = f"{flags.env_id}__{flags.seed}__{int(time.time())}"
+
+run_name = f"{flags.env_id}__{flags.seed}__{flags.postfix}_{int(time.time())}"
 
 writer = SummaryWriter(f"runs/{run_name}")
 writer.add_text(
@@ -152,7 +155,8 @@ for global_step in range(flags.total_timesteps):
 
         # update the target network
         if global_step % flags.target_network_frequency == 0:
-            teacher.target_q_network.load_state_dict(teacher.q_network.state_dict())
+            for param, target_param in zip(teacher.q_network.parameters(), teacher.target_q_network.parameters()):
+                target_param.data.copy_(flags.tau * param.data + (1 - flags.tau) * target_param.data)
 
 envs.close()
 writer.close()

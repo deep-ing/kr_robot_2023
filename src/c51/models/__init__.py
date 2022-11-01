@@ -10,7 +10,7 @@ class QNetwork(nn.Module):
         self.n_atoms = n_atoms
         
     def get_action(self, x, action=None):
-        x = self.permute(x)
+        # x = self.permute(x)
         logits = self.network(x / 255.0)
         # probability mass function for each action
         pmfs = torch.softmax(logits.view(len(x), self.n, self.n_atoms), dim=2)
@@ -19,9 +19,9 @@ class QNetwork(nn.Module):
             action = torch.argmax(q_values, 1)
         return action, pmfs[torch.arange(len(x)), action]
 
-    def permute(self, x):
-        x = x.permute(0,3,1,2)
-        return x
+    # def permute(self, x):
+    #     x = x.permute(0,3,1,2)
+    #     return x
 
 
 def linear_schedule(start_e: float, end_e: float, duration: int, t: int):
