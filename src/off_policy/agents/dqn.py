@@ -22,19 +22,34 @@ class DQN():
         self.target_q_network.to(device)
         return self
     
-    def train(self, rb, writer, global_step):
+    def train(self, rb, rb_distil, writer, global_step):
         for epoch in range(self.flags.teacher_epochs):
             data = rb.sample(self.af.batch_size)
             with torch.no_grad():
                 target_max, _ = self.target_q_network(data.next_observations).max(dim=1)
                 td_target = data.rewards.flatten() + self.flags.gamma * target_max * (1 - data.dones.flatten())
             old_val = self.q_network(data.observations).gather(1, data.actions).squeeze()
+
             loss = F.mse_loss(td_target, old_val)
 
             # optimize the model
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
+            
+            batch_loss = (td_target - old_val)**2
+            upper_bound = torch.quantile(batch_loss.detach(), self.flags.acceptance_ratio) 
+            indices = (batch_loss < upper_bound).nonzero()
+            for idx in indices:
+                # obs, next_obs, actions, rewards, dones, infos
+                idx = idx.item()
+                rb_distil.add(data.observations[idx].detach().cpu().numpy(),
+                              data.next_observations[idx].detach().cpu().numpy(),
+                              data.actions[idx].detach().cpu().numpy(),
+                              data.rewards[idx].detach().cpu().numpy(),
+                              data.dones[idx].detach().cpu().numpy(),
+                              [{}]
+                )
 
         writer.add_scalar("losses/loss", loss, global_step)
         writer.add_scalar("losses/q_values", old_val.mean().item(), global_step)

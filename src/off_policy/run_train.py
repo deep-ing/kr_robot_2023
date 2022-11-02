@@ -1,8 +1,8 @@
-from dis import dis
 from agents import get_agent
 from distilled import get_distilled
 from utils import linear_schedule
 import time
+import os 
 import gym 
 # from procgen import ProcgenEnv
 from torch.utils.tensorboard import SummaryWriter
@@ -22,8 +22,10 @@ parser.add_argument("--teacher-agent", type=str)
 parser.add_argument("--teacher-encoder", type=str)
 parser.add_argument("--distil-agent", type=str)
 parser.add_argument("--distil-encoder", type=str)
+parser.add_argument("--distil-method", type=str)
 parser.add_argument("--total-timesteps", type=int)
 parser.add_argument("--learning-starts", type=int)
+parser.add_argument("--acceptance-ratio", type=float)
 parser.add_argument("--postfix", type=str, default="")
 
 args = parser.parse_args()
@@ -31,8 +33,8 @@ flags = OmegaConf.load(args.config)
 for key in vars(args):
     setattr(flags, key, getattr(args, key))
 
-run_name = f"{flags.env_id}__{flags.seed}__{flags.postfix}_{int(time.time())}"
-writer = SummaryWriter(f"runs/{run_name}")
+run_name = f"runs/{flags.env_id}/{flags.teacher_agent}_{flags.teacher_encoder}_{flags.distil_agent}_{flags.distil_encoder}/{flags.distil_method}_{flags.postfix}_{int(time.time())}"
+writer = SummaryWriter(f"{run_name}")
 writer.add_text(
     "hyperparameters",
     "|param|value|\n|-|-|\n%s" % ("\n".join([f"|{key}|{value}|" for key, value in vars(args).items()])),
@@ -57,8 +59,17 @@ rb = ReplayBuffer(
     handle_timeout_termination=True,
 )
 
-flags.start_time = time.time()
+rb_distil = ReplayBuffer(
+    flags.distil_buffer_size,
+    envs.single_observation_space,
+    envs.single_action_space,
+    device,
+    optimize_memory_usage=False,
+    handle_timeout_termination=True,
+)
 
+flags.start_time = time.time()
+OmegaConf.save(flags, f'{run_name}/config.yaml')
 
 # ------------------------------------------------------------------------
 from encoder import get_encoder 
@@ -102,13 +113,14 @@ for global_step in range(flags.total_timesteps):
     rb.add(obs, next_obs, actions, rewards, dones, infos)
     obs = next_obs
     if global_step > flags.learning_starts and global_step % flags.train_teacher_frequency == 0:
-        teacher.train(rb, writer, global_step)
+        teacher.train(rb, rb_distil, writer, global_step)
     if global_step > flags.learning_starts and global_step % flags.train_distil_frequency == 0:
-        distil.train_distil(teacher, rb, global_step, writer)
+        distil.train_distil(teacher, rb_distil, global_step, writer)
             # update the target network
+        OmegaConf.save(flags, f'{run_name}/config.yaml')
     if global_step % teacher.target_network_frequency == 0:
         for param, target_param in zip(teacher.q_network.parameters(), teacher.target_q_network.parameters()):
             target_param.data.copy_(teacher.af.tau * param.data + (1 - teacher.af.tau) * target_param.data)
-        
+    
 envs.close()
 writer.close()

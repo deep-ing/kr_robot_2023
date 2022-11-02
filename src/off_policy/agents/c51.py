@@ -21,7 +21,7 @@ class C51():
         self.target_q_network.to(device)
         return self
     
-    def train(self, rb, writer, global_step):
+    def train(self, rb, rb_distil, writer, global_step):
         for epoch in range(self.flags.teacher_epochs):
             data = rb.sample(self.af.batch_size)
             with torch.no_grad():
@@ -44,7 +44,8 @@ class C51():
                     target_pmfs[i].index_add_(0, u[i].long(), d_m_u[i])
 
             _, old_pmfs = self.q_network.get_action(data.observations, data.actions.flatten())
-            loss = (-(target_pmfs * old_pmfs.clamp(min=1e-5, max=1 - 1e-5).log()).sum(-1)).mean()
+            batch_loss = (-(target_pmfs * old_pmfs.clamp(min=1e-5, max=1 - 1e-5).log()).sum(-1))
+            loss = batch_loss.mean()
             # optimize the model
             self.optimizer.zero_grad()
             loss.backward()

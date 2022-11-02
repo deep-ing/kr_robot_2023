@@ -2,8 +2,8 @@
 env='BreakoutNoFrameskip-v4'
 config='configs/build.yaml'
 seed=0
-total_timesteps=5000000
-learning_starts=300
+total_timesteps=3000000
+learning_starts=40000
 # --------------------------
 # teacher
 teacher_agent='dqn'
@@ -13,9 +13,9 @@ teacher_encoder='cnn'
 # distilllation
 distil_encoder='one_cnn'
 distil_agent='simple'
-distil_method='kl'  # kl mse 
+distil_method='mse'  # kl mse 
 
-acceptance_ratio=1.0
+acceptance_ratio=0.5
 
 python src/off_policy/run_train.py \
     --env-id $env \

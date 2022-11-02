@@ -16,6 +16,5 @@ class OneCNN(nn.Module):
             nn.ReLU(),
             nn.Linear(256, out_features),
         )
-
     def forward(self, x):
         return self.network(x)
