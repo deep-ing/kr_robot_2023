@@ -33,7 +33,7 @@ flags = OmegaConf.load(args.config)
 for key in vars(args):
     setattr(flags, key, getattr(args, key))
 
-run_name = f"runs/{flags.env_id}/{flags.teacher_agent}_{flags.teacher_encoder}_{flags.distil_agent}_{flags.distil_encoder}/{flags.distil_method}_{flags.postfix}_{int(time.time())}"
+run_name = f"runs/{flags.env_id}/{flags.teacher_agent}_{flags.teacher_encoder}_{flags.distil_agent}_{flags.distil_encoder}/{flags.distil_method}_quantile_{flags.acceptance_ratio}_{flags.postfix}_{int(time.time())}"
 writer = SummaryWriter(f"{run_name}")
 writer.add_text(
     "hyperparameters",

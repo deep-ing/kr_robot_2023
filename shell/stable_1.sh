@@ -15,7 +15,7 @@ distil_encoder='one_cnn'
 distil_agent='simple'
 distil_method='mse'  # kl mse 
 
-acceptance_ratio=0.5
+acceptance_ratio=1.0
 
 python src/off_policy/run_train.py \
     --env-id $env \
