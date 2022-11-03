@@ -38,8 +38,8 @@ class DQN():
             self.optimizer.step()
             
             batch_loss = (td_target - old_val)**2
-            upper_bound = torch.quantile(batch_loss.detach(), self.flags.acceptance_ratio) 
-            indices = (batch_loss < upper_bound).nonzero()
+            upper_bound = torch.quantile(batch_loss.detach(), (1-self.flags.acceptance_ratio)) 
+            indices = (batch_loss > upper_bound).nonzero()
             for idx in indices:
                 # obs, next_obs, actions, rewards, dones, infos
                 idx = idx.item()

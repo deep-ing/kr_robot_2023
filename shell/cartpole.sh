@@ -4,8 +4,8 @@ env='LunarLander-v2'
 env='CartPole-v1'
 config='configs/cartpole.yaml'
 seed=0
-total_timesteps=200000
-learning_starts=10000
+total_timesteps=50000
+learning_starts=1000
 # --------------------------
 # teacher
 teacher_agent='dqn'
