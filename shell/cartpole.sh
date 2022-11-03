@@ -16,7 +16,7 @@ distil_encoder='mlp_simple'
 distil_agent='simple'
 distil_method='mse' #'kl'  # kl mse 
 
-acceptance_ratio=1.0
+acceptance_ratio=0.75
 
 python src/off_policy/run_train.py \
     --env-id $env \
