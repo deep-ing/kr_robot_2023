@@ -1,7 +1,8 @@
+
 env='BreakoutNoFrameskip-v4'
 env='LunarLander-v2'
 env='CartPole-v1'
-config='configs/build.yaml'
+config='configs/cartpole.yaml'
 seed=0
 total_timesteps=200000
 learning_starts=10000
@@ -15,21 +16,7 @@ distil_encoder='mlp_simple'
 distil_agent='simple'
 distil_method='mse' #'kl'  # kl mse 
 
-acceptance_ratio=1.0
-
-tau=1.0
-target_update_frequency=2000
-dict='{"tau" : '$tau', "'$teacher_agent'/target_update_frequency":'$target_update_frequency'}'
-
-start_config='configs/build.yaml'
-save_config='configs/untracked/'$tau'_tuf_'$target_update_frequency'.yaml'
-python src/modify_yaml.py \
-    --items "$dict" \
-    --config $start_config \
-    --save-path $save_config
-
-
-
+acceptance_ratio=0.25
 
 python src/off_policy/run_train.py \
     --env-id $env \

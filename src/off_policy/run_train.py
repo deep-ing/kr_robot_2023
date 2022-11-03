@@ -97,7 +97,7 @@ for global_step in range(flags.total_timesteps):
     else:
         with torch.no_grad():
             actions, _ = distil.get_action(torch.Tensor(obs).to(device))
-        actions = actions.cpu().numpy()
+        actions = actions.int().cpu().numpy()
 
     # TRY NOT TO MODIFY: execute the game and log data.
     next_obs, rewards, dones, infos = envs.step(actions)

@@ -1,19 +1,20 @@
 
 env='BreakoutNoFrameskip-v4'
+env='LunarLander-v2'
+env='CartPole-v1'
 config='configs/build.yaml'
 seed=0
-total_timesteps=3000000
-learning_starts=40000
+total_timesteps=200000
+learning_starts=10000
 # --------------------------
 # teacher
 teacher_agent='dqn'
-teacher_encoder='cnn'
-
+teacher_encoder='mlp_deep'
 # --------------------------
 # distilllation
-distil_encoder='one_cnn'
+distil_encoder='mlp_simple'
 distil_agent='simple'
-distil_method='mse'  # kl mse 
+distil_method='mse' #'kl'  # kl mse 
 
 acceptance_ratio=1.0
 

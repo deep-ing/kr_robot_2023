@@ -2,18 +2,17 @@
 device: 'cuda:0'
 gamma : 0.99
 buffer_size : 100000
-exploration_fraction : 0.1
+exploration_fraction : 0.2
 start_e : 1
-end_e : 0.01 
+end_e : 0.1
 
-train_distil_frequency : 1000
-train_teacher_frequency : 500
-teacher_epochs : 100
+train_distil_frequency : 10
+train_teacher_frequency : 2
+teacher_epochs : 2
 
-distil_buffer_size : 10000
+distil_buffer_size : 30000
 distil_method : 'kl'    # kl mse
 kl_tau : 0.01           # kl_sharp ratio
-
 
 c51:
   target_network_frequency: 5000
@@ -26,13 +25,13 @@ c51:
   n_atoms : 51
 dqn:
   target_network_frequency: 1000
-  tau : 0.5
-  batch_size : 32
-  learning_rate: 1e-4
+  tau : 1.0
+  batch_size : 256
+  learning_rate: 2e-5
 
 # --- Distilled Student related config
 distil:
   simple:
-    learning_rate: 1e-3
-    batch_size: 64
-    distil_epochs : 100
+    learning_rate: 1e-4
+    batch_size: 32
+    distil_epochs : 10

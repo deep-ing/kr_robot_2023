@@ -10,8 +10,8 @@ class C51():
         
         self.flags = flags
         self.af = flags.c51
-        self.q_network = C51_Qnetwork(self.flags.action_dim, q_network, n_atoms=self.af.n_atoms, v_min=self.af.v_min, v_max=self.af.v_max)
-        self.optimizer = torch.optim.Adam(self.q_network.parameters(), lr=self.af.learning_rate, eps=0.01 / self.af.batch_size)
+        self.q_network = C51_Qnetwork(self.flags.action_dim, q_network, n_atoms=self.af.n_atoms, v_min=self.af.v_min, v_max=self.af.v_max, flags=self.flags)
+        self.optimizer = torch.optim.Adam(self.q_network.parameters(), lr=self.af.learning_rate, eps=0.01 / self.af.batch_size, flags=self.flags)
         self.target_q_network = C51_Qnetwork(self.flags.action_dim, q_t_network, n_atoms=self.af.n_atoms, v_min=self.af.v_min, v_max=self.af.v_max)
         self.target_q_network.load_state_dict(self.q_network.state_dict())
         self.target_network_frequency = self.af.target_network_frequency
@@ -62,7 +62,7 @@ class C51():
         
 
     def get_q_values(self, x):
-        logits = self.q_network.network(x / 255.0)
+        logits = self.q_network.network(x)
         # probability mass function for each action
         pmfs = torch.softmax(logits.view(len(x), self.q_network.n, self.q_network.n_atoms), dim=2)
         q_values = (pmfs * self.q_network.atoms).sum(2)
@@ -70,15 +70,19 @@ class C51():
 
 
 class C51_Qnetwork(nn.Module):
-    def __init__(self, action_dim, network, n_atoms=101, v_min=-100, v_max=100):
+    def __init__(self, action_dim, network, n_atoms=101, v_min=-100, v_max=100, flags=None):
         super().__init__()
         self.register_buffer("atoms", torch.linspace(v_min, v_max, steps=n_atoms))
         self.network = network
         self.n = action_dim
         self.n_atoms = n_atoms
+        self.divide_input = flags.divide_input
+        
         
     def get_action(self, x, action=None):
-        logits = self.network(x / 255.0)
+        if self.divide_input:
+            x = x / 255.0
+        logits = self.network(x)
         # probability mass function for each action
         pmfs = torch.softmax(logits.view(len(x), self.n, self.n_atoms), dim=2)
         q_values = (pmfs * self.atoms).sum(2)

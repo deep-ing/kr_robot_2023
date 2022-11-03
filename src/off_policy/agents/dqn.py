@@ -11,9 +11,9 @@ class DQN():
         
         self.flags = flags
         self.af = flags.dqn
-        self.q_network = DQN_QNetwork(q_network)
+        self.q_network = DQN_QNetwork(q_network, flags)
         self.optimizer = torch.optim.Adam(self.q_network.parameters(), lr=self.af.learning_rate, eps=0.01 / self.af.batch_size)
-        self.target_q_network = DQN_QNetwork(q_t_network)
+        self.target_q_network = DQN_QNetwork(q_t_network, flags)
         self.target_q_network.load_state_dict(self.q_network.state_dict())
         self.target_network_frequency = self.af.target_network_frequency
         
@@ -68,9 +68,10 @@ class DQN():
 
 
 class DQN_QNetwork(nn.Module):
-    def __init__(self, network):
+    def __init__(self, network, flags):
         super().__init__()
         self.network = network
+        self.divide_input = flags.divide_input
         
     def get_action(self, x, action=None):
         q_values = self(torch.Tensor(x))
@@ -78,7 +79,8 @@ class DQN_QNetwork(nn.Module):
         return actions, None
     
     def forward(self, x):
-        x = x / 255.0
+        if self.divide_input:
+            x = x / 255.0
         return self.network(x)
     
 

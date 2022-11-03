@@ -8,7 +8,7 @@ class Simple():
     def __init__(self, network, flags):
         self.flags = flags 
         self.df = flags.distil.simple
-        self.q_network = DQN_QNetwork(network)
+        self.q_network = DQN_QNetwork(network, self.flags)
         self.optimizer = torch.optim.Adam(self.q_network.parameters(), lr=self.df.learning_rate, eps=0.01 / self.df.batch_size)
         self.distil_method = self.flags.distil_method
         self.kl_tau = self.flags.kl_tau
@@ -69,14 +69,13 @@ class Simple():
         loss = torch.nn.functional.kl_div(probs, target_probs, reduction='batchmean')
         return loss 
     
-     
-
-
 
 class DQN_QNetwork(nn.Module):
-    def __init__(self, network):
+    def __init__(self, network, flags):
         super().__init__()
         self.network = network
+        self.divide_input = flags.divide_input
+        
         
     def get_action(self, x, action=None):
         q_values = self(torch.Tensor(x))
@@ -84,6 +83,7 @@ class DQN_QNetwork(nn.Module):
         return actions, None
     
     def forward(self, x):
-        x = x / 255.0
+        if self.divide_input:
+            x = x / 255
         return self.network(x)
     
