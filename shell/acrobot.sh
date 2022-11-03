@@ -1,11 +1,11 @@
 
 env='BreakoutNoFrameskip-v4'
-env='LunarLander-v2'
+env='Acrobot-v1'
 # env='CartPole-v1'
-config='configs/lunarlander.yaml'
-seed=0
-total_timesteps=50000
-learning_starts=1000
+config='configs/acrobot.yaml'
+seed=2
+total_timesteps=100000
+learning_starts=5000
 # --------------------------
 # teacher
 teacher_agent='dqn'

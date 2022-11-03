@@ -3,7 +3,7 @@ env='BreakoutNoFrameskip-v4'
 env='LunarLander-v2'
 env='CartPole-v1'
 config='configs/cartpole.yaml'
-seed=0
+seed=1
 total_timesteps=50000
 learning_starts=1000
 # --------------------------
@@ -16,7 +16,7 @@ distil_encoder='mlp_simple'
 distil_agent='simple'
 distil_method='mse' #'kl'  # kl mse 
 
-acceptance_ratio=0.25
+acceptance_ratio=1.0
 
 python src/off_policy/run_train.py \
     --env-id $env \
