@@ -55,8 +55,8 @@ rb = ReplayBuffer(
     envs.single_observation_space,
     envs.single_action_space,
     device,
-    optimize_memory_usage=False,
-    handle_timeout_termination=True,
+    optimize_memory_usage=True,
+    handle_timeout_termination=False,
 )
 
 rb_distil = ReplayBuffer(
@@ -64,8 +64,8 @@ rb_distil = ReplayBuffer(
     envs.single_observation_space,
     envs.single_action_space,
     device,
-    optimize_memory_usage=False,
-    handle_timeout_termination=True,
+    optimize_memory_usage=True,
+    handle_timeout_termination=False,
 )
 
 flags.start_time = time.time()

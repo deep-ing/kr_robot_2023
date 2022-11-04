@@ -4,7 +4,7 @@ env='BreakoutNoFrameskip-v4'
 # env='CartPole-v1'
 config='configs/breakout.yaml'
 total_timesteps=1000000
-learning_starts=20000
+learning_starts=10000
 # --------------------------
 # teacher
 teacher_agent='dqn'
@@ -15,7 +15,7 @@ distil_encoder='one_cnn'
 distil_agent='simple'
 distil_method='mse' #'kl'  # kl mse 
 
-acceptance_ratio=0.25
+acceptance_ratio=1.0
 
 for seed in 0 1 2
 do

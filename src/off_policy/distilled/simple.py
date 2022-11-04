@@ -84,6 +84,6 @@ class DQN_QNetwork(nn.Module):
     
     def forward(self, x):
         if self.divide_input:
-            x = x / 255
+            x = x / 255.0
         return self.network(x)
     
